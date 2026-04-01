@@ -1,39 +1,31 @@
-let voices = [];
-
-function loadVoices() {
-  voices = speechSynthesis.getVoices();
-}
-
-speechSynthesis.onvoiceschanged = loadVoices;
-
-function generateRingtone() {
+async function generateRingtone() {
   const name = document.getElementById("nameInput").value;
-  const status = document.getElementById("status");
 
-  if (name === "") {
-    alert("Naam likho pehle!");
+  if (!name) {
+    alert("Naam likho!");
     return;
   }
 
-  const text = name + " ji, phone utha lo... koi call kar raha hai";
+  const text = `${name} ji, phone utha lo... koi call kar raha hai`;
 
-  const speech = new SpeechSynthesisUtterance(text);
+  // FREE TTS API
+  const url = `https://api.streamelements.com/kappa/v2/speech?voice=Brian&text=${encodeURIComponent(text)}`;
 
-  // Indian voice try karo
-  const indianVoice = voices.find(v => v.lang === "en-IN" || v.lang === "hi-IN");
+  const audio = new Audio(url);
+  audio.play();
 
-  if (indianVoice) {
-    speech.voice = indianVoice;
-  }
-
-  speech.rate = 0.9;
-  speech.pitch = 1;
-
-  speechSynthesis.speak(speech);
-
-  status.innerText = "🔊 Ringtone play ho rahi hai...";
+  // Save URL globally for download
+  window.audioURL = url;
 }
 
 function downloadRingtone() {
-  alert("⚠ Abhi download feature next version me aayega.\nScreen recorder use karo 🔥");
+  if (!window.audioURL) {
+    alert("Pehle generate karo!");
+    return;
+  }
+
+  const a = document.createElement("a");
+  a.href = window.audioURL;
+  a.download = "ringtone.mp3";
+  a.click();
 }
