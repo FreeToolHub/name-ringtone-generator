@@ -46,7 +46,7 @@ audio {
 </div>
 
 <script>
-async function generate() {
+function generate() {
   let name = document.getElementById("name").value;
 
   if(name === "") {
@@ -55,63 +55,14 @@ async function generate() {
   }
 
   let text = name + " calling ringtone";
-  let apiKey = "YOUR_API_KEY";
+  let apiKey = "ec7c59370d864b21ad1d0c68f7e2b58c";
 
-  let voiceUrl = "https://api.voicerss.org/?key=" + apiKey + "&hl=en-in&src=" + encodeURIComponent(text) + "&c=MP3";
+  let url = "https://api.voicerss.org/?key=" + apiKey + "&hl=en-in&src=" + encodeURIComponent(text) + "&c=MP3";
 
-  let musicUrl = "music.mp3";
-
-  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-  async function loadAudio(url) {
-    const res = await fetch(url);
-    const arrayBuffer = await res.arrayBuffer();
-    return await audioContext.decodeAudioData(arrayBuffer);
-  }
-
-  let voiceBuffer = await loadAudio(voiceUrl);
-  let musicBuffer = await loadAudio(musicUrl);
-
-  let output = audioContext.createBuffer(
-    2,
-    voiceBuffer.length,
-    audioContext.sampleRate
-  );
-
-  for (let channel = 0; channel < 2; channel++) {
-    let outputData = output.getChannelData(channel);
-    let voiceData = voiceBuffer.getChannelData(0);
-    let musicData = musicBuffer.getChannelData(0);
-
-    for (let i = 0; i < voiceData.length; i++) {
-      outputData[i] = voiceData[i] + (musicData[i] * 0.3);
-    }
-  }
-
-  let source = audioContext.createBufferSource();
-  source.buffer = output;
-
-  let dest = audioContext.createMediaStreamDestination();
-  source.connect(dest);
-  source.start();
-
-  let recorder = new MediaRecorder(dest.stream);
-  let chunks = [];
-
-  recorder.ondataavailable = e => chunks.push(e.data);
-
-  recorder.onstop = () => {
-    let blob = new Blob(chunks, { type: "audio/mp3" });
-    let url = URL.createObjectURL(blob);
-
-    document.getElementById("result").innerHTML = `
-      <audio controls src="${url}"></audio><br>
-      <a href="${url}" download="${name}-ringtone.mp3">Download</a>
-    `;
-  };
-
-  recorder.start();
-  setTimeout(() => recorder.stop(), 4000);
+  document.getElementById("result").innerHTML = `
+    <audio controls autoplay src="${url}"></audio><br>
+    <a href="${url}" download="${name}-ringtone.mp3">Download</a>
+  `;
 }
 </script>
 
