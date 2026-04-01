@@ -2,55 +2,29 @@
 <html>
 <head>
   <title>Name Ringtone Generator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- SEO -->
-  <meta name="description" content="Generate custom name calling ringtone online free.">
-
-  <!-- Adsterra Ads (PLACE YOUR CODE HERE) -->
-  <script>
-    // Adsterra ad code paste here
-  </script>
-
+  <link rel="stylesheet" href="style.css">
 </head>
+<body>
 
-<body style="font-family:sans-serif; text-align:center; padding:20px;">
+<h1>Name Ringtone Generator 🔥</h1>
 
-  <h1>📱 Name Ringtone Generator</h1>
+<input type="text" id="name" placeholder="Enter your name">
+<br><br>
 
-  <input type="text" id="name" placeholder="Enter your name" style="padding:10px; width:200px;">
-  <br><br>
+<button onclick="generate()">Generate Ringtone</button>
 
-  <button onclick="generate()">Generate Ringtone</button>
+<br><br>
 
-  <h3 id="output"></h3>
+<audio id="audio" controls></audio>
+<br><br>
 
-  <button onclick="play()">▶ Play</button>
+<button id="downloadBtn" style="display:none;">Download</button>
 
-  <!-- Download -->
-  <br><br>
-  <button onclick="download()">⬇ Download</button>
+<!-- Adsterra Ad Space -->
+<div id="adsterra">
+  <!-- Paste your Ad code here -->
+</div>
 
-  <!-- TTS Script -->
-  <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
-
-  <script>
-    let text = "";
-
-    function generate() {
-      let name = document.getElementById("name").value;
-      text = name + " is calling you, please pick up the phone";
-      document.getElementById("output").innerText = text;
-    }
-
-    function play() {
-      responsiveVoice.speak(text);
-    }
-
-    function download() {
-      alert("Download feature requires backend. Use screen recorder or advanced version later.");
-    }
-  </script>
-
+<script src="script.js"></script>
 </body>
 </html>
