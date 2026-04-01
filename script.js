@@ -1,20 +1,39 @@
-let audioBlob;
+let voices = [];
+
+function loadVoices() {
+  voices = speechSynthesis.getVoices();
+}
+
+speechSynthesis.onvoiceschanged = loadVoices;
 
 function generateRingtone() {
-    const name = document.getElementById("nameInput").value;
+  const name = document.getElementById("nameInput").value;
+  const status = document.getElementById("status");
 
-    const text = name + " is calling, please pick up the phone";
+  if (name === "") {
+    alert("Naam likho pehle!");
+    return;
+  }
 
-    const speech = new SpeechSynthesisUtterance(text);
-    speech.lang = "en-US";
+  const text = name + " ji, phone utha lo... koi call kar raha hai";
 
-    speech.onend = function() {
-        console.log("Speech finished");
-    };
+  const speech = new SpeechSynthesisUtterance(text);
 
-    window.speechSynthesis.speak(speech);
+  // Indian voice try karo
+  const indianVoice = voices.find(v => v.lang === "en-IN" || v.lang === "hi-IN");
+
+  if (indianVoice) {
+    speech.voice = indianVoice;
+  }
+
+  speech.rate = 0.9;
+  speech.pitch = 1;
+
+  speechSynthesis.speak(speech);
+
+  status.innerText = "🔊 Ringtone play ho rahi hai...";
 }
 
 function downloadRingtone() {
-    alert("Download feature advanced version me add karenge 🔥");
+  alert("⚠ Abhi download feature next version me aayega.\nScreen recorder use karo 🔥");
 }
