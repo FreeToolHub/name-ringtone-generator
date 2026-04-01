@@ -1,18 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-  <!-- SEO START -->
-  <meta name="description" content="Create your name ringtone instantly. Download Vishal calling ringtone, Rahul ringtone free.">
+<!-- SEO -->
+<meta name="description" content="Create your name ringtone instantly. Download Vishal calling ringtone, Rahul ringtone free.">
+<meta name="keywords" content="name ringtone download, caller name ringtone, ringtone maker india, vishal calling ringtone">
+<title>Name Ringtone Generator - Create Your Name Ringtone Free</title>
 
-  <meta name="keywords" content="name ringtone download, caller name ringtone, ringtone maker india, vishal calling ringtone">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Name Ringtone Generator - Create Your Name Ringtone Free</title>
-  <!-- SEO END -->
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0f0f0f;
+  color: white;
+}
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
+.container {
+  text-align: center;
+  padding: 20px;
+}
+
+h1 {
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+input {
+  width: 90%;
+  max-width: 300px;
+  padding: 12px;
+  font-size: 16px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border: none;
+}
+
+button {
+  width: 90%;
+  max-width: 300px;
+  padding: 12px;
+  margin: 8px 0;
+  font-size: 16px;
+  background: orange;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.ad-box {
+  margin-top: 20px;
+}
+
+#status {
+  font-size: 14px;
+  margin: 10px 0;
+  color: lightgreen;
+}
+</style>
 </head>
 
 <body>
@@ -28,23 +75,61 @@
 
   <button onclick="downloadRingtone()">⬇ Download</button>
 
-  <!-- SEO CONTENT START -->
+  <!-- SEO CONTENT -->
   <h2>Download Your Name Ringtone Free</h2>
-
   <p>
   Create your custom caller name ringtone online. 
   Enter your name and download ringtone instantly. 
   Works for all names like Vishal, Rahul, Pooja and more.
   </p>
-  <!-- SEO CONTENT END -->
 
-  <!-- Adsterra Ad Space -->
+  <!-- Ads -->
   <div class="ad-box">
-    <!-- Ad code here -->
+    <!-- Adsterra code yaha daalo -->
   </div>
-
 </div>
 
-<script src="script.js"></script>
+<script>
+let audioURL = "";
+
+function generateRingtone() {
+  const name = document.getElementById("nameInput").value.trim();
+  const status = document.getElementById("status");
+
+  if (!name) {
+    alert("Naam likho!");
+    return;
+  }
+
+  const text = name + " ji, phone utha lo... koi call kar raha hai";
+
+  const url = "https://api.streamelements.com/kappa/v2/speech?voice=Brian&text=" + encodeURIComponent(text);
+
+  const audio = new Audio(url);
+
+  audio.play().then(() => {
+    status.innerText = "✅ Ringtone play ho rahi hai...";
+  }).catch(() => {
+    status.innerText = "⚠ Play button dabao (browser block kar raha hai)";
+  });
+
+  audioURL = url;
+}
+
+function downloadRingtone() {
+  if (!audioURL) {
+    alert("Pehle generate karo!");
+    return;
+  }
+
+  const a = document.createElement("a");
+  a.href = audioURL;
+  a.download = "ringtone.mp3";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+</script>
+
 </body>
 </html>
