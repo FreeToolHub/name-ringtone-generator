@@ -88,9 +88,9 @@ audio {
 
 <script>
 
-let audioURL = "";
+let audioBlobURL = "";
 
-function generate() {
+async function generate() {
 
   const name = document.getElementById("nameInput").value.trim();
   const status = document.getElementById("status");
@@ -103,28 +103,44 @@ function generate() {
 
   const text = `${name} ji, phone utha lo, koi call kar raha hai`;
 
-  // ✅ WORKING FREE TTS API
   const url = "https://translate.google.com/translate_tts?ie=UTF-8&q="
               + encodeURIComponent(text)
               + "&tl=hi&client=tw-ob";
 
-  audioURL = url;
+  try {
 
-  player.src = url;
-  player.play();
+    status.innerText = "⏳ Generating...";
 
-  status.innerText = "✅ Ringtone ready!";
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Accept": "audio/mpeg"
+      }
+    });
+
+    const blob = await response.blob();
+    audioBlobURL = URL.createObjectURL(blob);
+
+    player.src = audioBlobURL;
+    player.play();
+
+    status.innerText = "✅ Ringtone ready!";
+
+  } catch (err) {
+    status.innerText = "❌ Error: Browser blocked audio";
+    console.error(err);
+  }
 }
 
 function download() {
 
-  if (!audioURL) {
+  if (!audioBlobURL) {
     alert("Pehle generate karo!");
     return;
   }
 
   const a = document.createElement("a");
-  a.href = audioURL;
+  a.href = audioBlobURL;
   a.download = "ringtone.mp3";
   document.body.appendChild(a);
   a.click();
