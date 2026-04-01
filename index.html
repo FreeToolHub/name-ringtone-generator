@@ -1,30 +1,71 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Name Ringtone Generator</title>
-  <link rel="stylesheet" href="style.css">
+<title>Name Ringtone Generator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+  font-family: Arial;
+  text-align: center;
+  background: #0f172a;
+  color: white;
+}
+.container {
+  margin-top: 50px;
+}
+input {
+  padding: 12px;
+  width: 250px;
+  border-radius: 8px;
+  border: none;
+}
+button {
+  padding: 12px 20px;
+  margin-top: 10px;
+  background: #22c55e;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+audio {
+  margin-top: 20px;
+}
+</style>
 </head>
+
 <body>
 
-<h1>Name Ringtone Generator 🔥</h1>
+<h1>🔥 Name Ringtone Generator</h1>
 
-<input type="text" id="name" placeholder="Enter your name">
-<br><br>
+<div class="container">
+  <input type="text" id="name" placeholder="Enter your name">
+  <br>
+  <button onclick="generate()">Generate Ringtone</button>
 
-<button onclick="generate()">Generate Ringtone</button>
-
-<br><br>
-
-<audio id="audio" controls></audio>
-<br><br>
-
-<button id="downloadBtn" style="display:none;">Download</button>
-
-<!-- Adsterra Ad Space -->
-<div id="adsterra">
-  <!-- Paste your Ad code here -->
+  <div id="result"></div>
 </div>
 
-<script src="script.js"></script>
+<script>
+function generate() {
+  let name = document.getElementById("name").value;
+  
+  if(name === "") {
+    alert("Enter name first!");
+    return;
+  }
+
+  let text = name + " calling ringtone";
+
+  let apiKey = "YOUR_API_KEY";
+
+  let url = "https://api.voicerss.org/?key=" + apiKey + "&hl=en-in&src=" + encodeURIComponent(text) + "&c=MP3";
+
+  document.getElementById("result").innerHTML = `
+    <audio controls src="${url}"></audio><br>
+    <a href="${url}" download="ringtone.mp3">Download</a>
+  `;
+}
+</script>
+
 </body>
 </html>
