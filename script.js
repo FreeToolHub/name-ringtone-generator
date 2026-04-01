@@ -1,40 +1,20 @@
-let audioBlob;
-
 function generate() {
   let name = document.getElementById("name").value;
-  let text = name + " calling";
+
+  // pronunciation fix
+  let fixedName = name
+    .replace(/vishal/i, "vishaal")
+    .replace(/rahul/i, "raahul")
+    .replace(/sahil/i, "saahhil");
+
+  let text = fixedName + " calling";
 
   let speech = new SpeechSynthesisUtterance(text);
 
-  let mediaStream = new MediaStream();
-  let recorder = new MediaRecorder(mediaStream);
-  let chunks = [];
+  speech.lang = "en-IN"; // Indian accent
 
-  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-    recorder = new MediaRecorder(stream);
+  speech.rate = 0.9;
+  speech.pitch = 1;
 
-    recorder.ondataavailable = e => {
-      chunks.push(e.data);
-    };
-
-    recorder.onstop = e => {
-      audioBlob = new Blob(chunks, { type: 'audio/mp3' });
-      let audioURL = URL.createObjectURL(audioBlob);
-
-      document.getElementById("audio").src = audioURL;
-
-      document.getElementById("downloadBtn").style.display = "block";
-      document.getElementById("downloadBtn").onclick = () => {
-        let a = document.createElement("a");
-        a.href = audioURL;
-        a.download = name + "-ringtone.mp3";
-        a.click();
-      };
-    };
-
-    recorder.start();
-    speechSynthesis.speak(speech);
-
-    setTimeout(() => recorder.stop(), 3000);
-  });
+  speechSynthesis.speak(speech);
 }
