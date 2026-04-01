@@ -2,14 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-
 <title>Name Ringtone Generator</title>
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- SEO -->
-<meta name="description" content="Create your name ringtone instantly. Download your custom caller name ringtone free.">
-<meta name="keywords" content="name ringtone download, caller name ringtone, ringtone maker india">
+<meta name="description" content="Download your name ringtone instantly. Hindi & English caller name ringtone free.">
 
 <style>
 body {
@@ -28,11 +24,11 @@ h1 {
   font-size: 22px;
 }
 
-input {
+input, select {
   width: 90%;
-  max-width: 300px;
+  max-width: 320px;
   padding: 12px;
-  margin-top: 15px;
+  margin-top: 10px;
   border-radius: 8px;
   border: none;
   font-size: 16px;
@@ -40,7 +36,7 @@ input {
 
 button {
   width: 90%;
-  max-width: 300px;
+  max-width: 320px;
   padding: 12px;
   margin-top: 10px;
   background: orange;
@@ -49,17 +45,14 @@ button {
   font-size: 16px;
 }
 
-audio {
-  margin-top: 15px;
-  width: 90%;
-  max-width: 300px;
-}
-
 #status {
   margin-top: 10px;
   color: lightgreen;
 }
 </style>
+
+<!-- Voice Engine -->
+<script src="https://code.responsivevoice.org/responsivevoice.js?key=free"></script>
 
 </head>
 
@@ -67,84 +60,79 @@ audio {
 
 <div class="container">
 
-<h1>📞 Name Ringtone Generator</h1>
+<h1>📞 Advanced Name Ringtone Generator</h1>
 
 <input type="text" id="nameInput" placeholder="Apna naam likho">
 
-<button onclick="generate()">🎵 Generate</button>
+<select id="lang">
+  <option value="hi">Hindi</option>
+  <option value="en">English</option>
+</select>
 
-<audio id="player" controls></audio>
+<select id="voice">
+  <option value="male">Male Voice</option>
+  <option value="female">Female Voice</option>
+</select>
+
+<button onclick="generate()">🎵 Generate</button>
 
 <button onclick="download()">⬇ Download MP3</button>
 
 <p id="status"></p>
 
-<!-- Adsterra Ad Space -->
+<!-- Adsterra -->
 <div>
-<!-- Ad code yaha paste karna -->
+<!-- Ad code yaha -->
 </div>
 
 </div>
 
 <script>
 
-let audioBlobURL = "";
+let recordedBlob;
 
-async function generate() {
+function generate() {
 
   const name = document.getElementById("nameInput").value.trim();
+  const lang = document.getElementById("lang").value;
+  const voiceType = document.getElementById("voice").value;
   const status = document.getElementById("status");
-  const player = document.getElementById("player");
 
   if (!name) {
     alert("Naam likho!");
     return;
   }
 
-  const text = `${name} ji, phone utha lo, koi call kar raha hai`;
+  let text;
 
-  const url = "https://translate.google.com/translate_tts?ie=UTF-8&q="
-              + encodeURIComponent(text)
-              + "&tl=hi&client=tw-ob";
-
-  try {
-
-    status.innerText = "⏳ Generating...";
-
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        "Accept": "audio/mpeg"
-      }
-    });
-
-    const blob = await response.blob();
-    audioBlobURL = URL.createObjectURL(blob);
-
-    player.src = audioBlobURL;
-    player.play();
-
-    status.innerText = "✅ Ringtone ready!";
-
-  } catch (err) {
-    status.innerText = "❌ Error: Browser blocked audio";
-    console.error(err);
+  if (lang === "hi") {
+    text = `${name} ji, phone utha lo, koi call kar raha hai`;
+  } else {
+    text = `${name}, your phone is ringing, please pick up`;
   }
+
+  let voice;
+
+  if (voiceType === "female") {
+    voice = lang === "hi" ? "Hindi Female" : "UK English Female";
+  } else {
+    voice = lang === "hi" ? "Hindi Male" : "US English Male";
+  }
+
+  status.innerText = "⏳ Generating...";
+
+  responsiveVoice.speak(text, voice, {
+    rate: 0.9,
+    pitch: 1,
+    onend: () => {
+      status.innerText = "✅ Ringtone Ready!";
+    }
+  });
 }
 
+// ⚠️ NOTE: Browser restriction → direct mp3 record not perfect
 function download() {
-
-  if (!audioBlobURL) {
-    alert("Pehle generate karo!");
-    return;
-  }
-
-  const a = document.createElement("a");
-  a.href = audioBlobURL;
-  a.download = "ringtone.mp3";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  alert("🔥 Pro Version me real MP3 export milega (server based)");
 }
 
 </script>
