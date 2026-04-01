@@ -45,10 +45,10 @@ audio {
   <div id="result"></div>
 </div>
 
-<script>
+<script> <script>
 function generate() {
   let name = document.getElementById("name").value;
-  
+
   if(name === "") {
     alert("Enter name first!");
     return;
@@ -56,15 +56,37 @@ function generate() {
 
   let text = name + " calling ringtone";
 
-  let apiKey = "ec7c59370d864b21ad1d0c68f7e2b58c";
+  let apiKey = "YOUR_API_KEY";
 
-  let url = "https://api.voicerss.org/?key=" + apiKey + "&hl=en-in&src=" + encodeURIComponent(text) + "&c=MP3";
+  let voiceUrl = "https://api.voicerss.org/?key=" + apiKey + "&hl=en-in&src=" + encodeURIComponent(text) + "&c=MP3";
+
+  let musicUrl = "music.mp3"; // upload this file in repo
 
   document.getElementById("result").innerHTML = `
-    <audio controls src="${url}"></audio><br>
-    <a href="${url}" download="ringtone.mp3">Download</a>
+    <audio id="voice" src="${voiceUrl}"></audio>
+    <audio id="music" src="${musicUrl}" loop></audio>
+
+    <button onclick="playMix()">▶ Play Ringtone</button>
   `;
 }
+
+function playMix() {
+  let voice = document.getElementById("voice");
+  let music = document.getElementById("music");
+
+  music.volume = 0.3;
+  voice.volume = 1;
+
+  music.play();
+  voice.play();
+
+  voice.onended = () => {
+    music.pause();
+    music.currentTime = 0;
+  };
+}
+</script>
+
 </script>
 
 </body>
