@@ -24,6 +24,7 @@ input {
   width: 90%;
   max-width: 300px;
   padding: 12px;
+  margin: 10px 0;
   border-radius: 8px;
   border: none;
 }
@@ -32,16 +33,16 @@ button {
   width: 90%;
   max-width: 300px;
   padding: 12px;
-  margin: 10px 0;
+  margin: 8px 0;
   background: orange;
   border: none;
   border-radius: 8px;
+  font-size: 16px;
 }
 
 audio {
-  margin-top: 15px;
   width: 90%;
-  max-width: 300px;
+  margin-top: 10px;
 }
 
 #status {
@@ -49,63 +50,77 @@ audio {
   color: lightgreen;
 }
 </style>
-
 </head>
 
 <body>
 
 <div class="container">
+  <h1>📞 Name Ringtone Generator</h1>
 
-<h1>📞 Name Ringtone Generator</h1>
+  <input type="text" id="nameInput" placeholder="Apna naam likho...">
 
-<input type="text" id="nameInput" placeholder="Apna naam likho...">
+  <button onclick="generate()">🎵 Generate</button>
 
-<button onclick="generateRingtone()">🎵 Generate</button>
+  <audio id="player" controls></audio>
 
-<p id="status"></p>
+  <p id="status"></p>
 
-<audio id="player" controls></audio>
+  <button onclick="download()">⬇ Download</button>
 
-<button onclick="downloadRingtone()">⬇ Download</button>
-
-<div class="ad-box">
-  <!-- Adsterra code yaha -->
-</div>
+  <!-- Ads -->
+  <div id="ads">
+    <!-- Adsterra script yaha paste karo -->
+  </div>
 
 </div>
 
 <script>
 
-let audioURL = "";
-let player = document.getElementById("player");
+let audioBlob = null;
 
-function generateRingtone() {
+async function generate() {
   const name = document.getElementById("nameInput").value.trim();
   const status = document.getElementById("status");
+  const player = document.getElementById("player");
 
   if (!name) {
     alert("Naam likho!");
     return;
   }
 
-  const text = name + " ji, phone utha lo... koi call kar raha hai";
+  status.innerText = "⏳ Ringtone generate ho rahi hai...";
 
-  audioURL = "https://api.streamelements.com/kappa/v2/speech?voice=Brian&text=" + encodeURIComponent(text);
+  const text = `${name} ji, phone utha lo, koi call kar raha hai`;
 
-  player.src = audioURL;
+  const url = "https://api.streamelements.com/kappa/v2/speech?voice=Brian&text=" + encodeURIComponent(text);
 
-  status.innerText = "▶ Play button dabao aur ringtone suno";
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
 
+    audioBlob = blob;
+
+    const audioURL = URL.createObjectURL(blob);
+    player.src = audioURL;
+
+    player.play();
+
+    status.innerText = "✅ Ready! Play ya download karo";
+
+  } catch (error) {
+    status.innerText = "❌ Error: Internet ya browser issue";
+  }
 }
 
-function downloadRingtone() {
-  if (!audioURL) {
+function download() {
+  if (!audioBlob) {
     alert("Pehle generate karo!");
     return;
   }
 
+  const url = URL.createObjectURL(audioBlob);
   const a = document.createElement("a");
-  a.href = audioURL;
+  a.href = url;
   a.download = "ringtone.mp3";
   document.body.appendChild(a);
   a.click();
