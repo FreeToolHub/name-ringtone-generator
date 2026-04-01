@@ -3,9 +3,13 @@
 <head>
 <meta charset="UTF-8">
 
+<title>Name Ringtone Generator</title>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Name Ringtone Generator</title>
+<!-- SEO -->
+<meta name="description" content="Create your name ringtone instantly. Download your custom caller name ringtone free.">
+<meta name="keywords" content="name ringtone download, caller name ringtone, ringtone maker india">
 
 <style>
 body {
@@ -13,27 +17,32 @@ body {
   font-family: Arial;
   background: #0f0f0f;
   color: white;
-  text-align: center;
 }
 
 .container {
+  text-align: center;
   padding: 20px;
+}
+
+h1 {
+  font-size: 22px;
 }
 
 input {
   width: 90%;
   max-width: 300px;
   padding: 12px;
-  margin: 10px 0;
+  margin-top: 15px;
   border-radius: 8px;
   border: none;
+  font-size: 16px;
 }
 
 button {
   width: 90%;
   max-width: 300px;
   padding: 12px;
-  margin: 8px 0;
+  margin-top: 10px;
   background: orange;
   border: none;
   border-radius: 8px;
@@ -41,8 +50,9 @@ button {
 }
 
 audio {
+  margin-top: 15px;
   width: 90%;
-  margin-top: 10px;
+  max-width: 300px;
 }
 
 #status {
@@ -50,35 +60,38 @@ audio {
   color: lightgreen;
 }
 </style>
+
 </head>
 
 <body>
 
 <div class="container">
-  <h1>📞 Name Ringtone Generator</h1>
 
-  <input type="text" id="nameInput" placeholder="Apna naam likho...">
+<h1>📞 Name Ringtone Generator</h1>
 
-  <button onclick="generate()">🎵 Generate</button>
+<input type="text" id="nameInput" placeholder="Apna naam likho">
 
-  <audio id="player" controls></audio>
+<button onclick="generate()">🎵 Generate</button>
 
-  <p id="status"></p>
+<audio id="player" controls></audio>
 
-  <button onclick="download()">⬇ Download</button>
+<button onclick="download()">⬇ Download MP3</button>
 
-  <!-- Ads -->
-  <div id="ads">
-    <!-- Adsterra script yaha paste karo -->
-  </div>
+<p id="status"></p>
+
+<!-- Adsterra Ad Space -->
+<div>
+<!-- Ad code yaha paste karna -->
+</div>
 
 </div>
 
 <script>
 
-let audioBlob = null;
+let audioURL = "";
 
-async function generate() {
+function generate() {
+
   const name = document.getElementById("nameInput").value.trim();
   const status = document.getElementById("status");
   const player = document.getElementById("player");
@@ -88,39 +101,30 @@ async function generate() {
     return;
   }
 
-  status.innerText = "⏳ Ringtone generate ho rahi hai...";
-
   const text = `${name} ji, phone utha lo, koi call kar raha hai`;
 
-  const url = "https://api.streamelements.com/kappa/v2/speech?voice=Brian&text=" + encodeURIComponent(text);
+  // ✅ WORKING FREE TTS API
+  const url = "https://translate.google.com/translate_tts?ie=UTF-8&q="
+              + encodeURIComponent(text)
+              + "&tl=hi&client=tw-ob";
 
-  try {
-    const response = await fetch(url);
-    const blob = await response.blob();
+  audioURL = url;
 
-    audioBlob = blob;
+  player.src = url;
+  player.play();
 
-    const audioURL = URL.createObjectURL(blob);
-    player.src = audioURL;
-
-    player.play();
-
-    status.innerText = "✅ Ready! Play ya download karo";
-
-  } catch (error) {
-    status.innerText = "❌ Error: Internet ya browser issue";
-  }
+  status.innerText = "✅ Ringtone ready!";
 }
 
 function download() {
-  if (!audioBlob) {
+
+  if (!audioURL) {
     alert("Pehle generate karo!");
     return;
   }
 
-  const url = URL.createObjectURL(audioBlob);
   const a = document.createElement("a");
-  a.href = url;
+  a.href = audioURL;
   a.download = "ringtone.mp3";
   document.body.appendChild(a);
   a.click();
