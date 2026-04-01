@@ -1,141 +1,56 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Name Ringtone Generator</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Name Ringtone Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta name="description" content="Download your name ringtone instantly. Hindi & English caller name ringtone free.">
+  <!-- SEO -->
+  <meta name="description" content="Generate custom name calling ringtone online free.">
 
-<style>
-body {
-  margin: 0;
-  font-family: Arial;
-  background: #0f0f0f;
-  color: white;
-}
-
-.container {
-  text-align: center;
-  padding: 20px;
-}
-
-h1 {
-  font-size: 22px;
-}
-
-input, select {
-  width: 90%;
-  max-width: 320px;
-  padding: 12px;
-  margin-top: 10px;
-  border-radius: 8px;
-  border: none;
-  font-size: 16px;
-}
-
-button {
-  width: 90%;
-  max-width: 320px;
-  padding: 12px;
-  margin-top: 10px;
-  background: orange;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-}
-
-#status {
-  margin-top: 10px;
-  color: lightgreen;
-}
-</style>
-
-<!-- Voice Engine -->
-<script src="https://code.responsivevoice.org/responsivevoice.js?key=free"></script>
+  <!-- Adsterra Ads (PLACE YOUR CODE HERE) -->
+  <script>
+    // Adsterra ad code paste here
+  </script>
 
 </head>
 
-<body>
+<body style="font-family:sans-serif; text-align:center; padding:20px;">
 
-<div class="container">
+  <h1>📱 Name Ringtone Generator</h1>
 
-<h1>📞 Advanced Name Ringtone Generator</h1>
+  <input type="text" id="name" placeholder="Enter your name" style="padding:10px; width:200px;">
+  <br><br>
 
-<input type="text" id="nameInput" placeholder="Apna naam likho">
+  <button onclick="generate()">Generate Ringtone</button>
 
-<select id="lang">
-  <option value="hi">Hindi</option>
-  <option value="en">English</option>
-</select>
+  <h3 id="output"></h3>
 
-<select id="voice">
-  <option value="male">Male Voice</option>
-  <option value="female">Female Voice</option>
-</select>
+  <button onclick="play()">▶ Play</button>
 
-<button onclick="generate()">🎵 Generate</button>
+  <!-- Download -->
+  <br><br>
+  <button onclick="download()">⬇ Download</button>
 
-<button onclick="download()">⬇ Download MP3</button>
+  <!-- TTS Script -->
+  <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 
-<p id="status"></p>
+  <script>
+    let text = "";
 
-<!-- Adsterra -->
-<div>
-<!-- Ad code yaha -->
-</div>
-
-</div>
-
-<script>
-
-let recordedBlob;
-
-function generate() {
-
-  const name = document.getElementById("nameInput").value.trim();
-  const lang = document.getElementById("lang").value;
-  const voiceType = document.getElementById("voice").value;
-  const status = document.getElementById("status");
-
-  if (!name) {
-    alert("Naam likho!");
-    return;
-  }
-
-  let text;
-
-  if (lang === "hi") {
-    text = `${name} ji, phone utha lo, koi call kar raha hai`;
-  } else {
-    text = `${name}, your phone is ringing, please pick up`;
-  }
-
-  let voice;
-
-  if (voiceType === "female") {
-    voice = lang === "hi" ? "Hindi Female" : "UK English Female";
-  } else {
-    voice = lang === "hi" ? "Hindi Male" : "US English Male";
-  }
-
-  status.innerText = "⏳ Generating...";
-
-  responsiveVoice.speak(text, voice, {
-    rate: 0.9,
-    pitch: 1,
-    onend: () => {
-      status.innerText = "✅ Ringtone Ready!";
+    function generate() {
+      let name = document.getElementById("name").value;
+      text = name + " is calling you, please pick up the phone";
+      document.getElementById("output").innerText = text;
     }
-  });
-}
 
-// ⚠️ NOTE: Browser restriction → direct mp3 record not perfect
-function download() {
-  alert("🔥 Pro Version me real MP3 export milega (server based)");
-}
+    function play() {
+      responsiveVoice.speak(text);
+    }
 
-</script>
+    function download() {
+      alert("Download feature requires backend. Use screen recorder or advanced version later.");
+    }
+  </script>
 
 </body>
 </html>
