@@ -3,63 +3,35 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Name Ringtone Generator</title>
 
-<!-- SEO -->
-<meta name="description" content="Generate custom name ringtone like 'Vishal calling ringtone' instantly. Free download.">
-
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+<title>Name Ringtone Generator 🔥</title>
 
 <style>
-body {
-    font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #1e1e2f, #121212);
-    color: white;
-    text-align: center;
-    margin: 0;
+body{
+    background:#0f172a;
+    color:white;
+    text-align:center;
+    font-family:system-ui;
 }
-
-.container {
-    max-width: 400px;
-    margin: auto;
-    padding: 20px;
+.container{
+    max-width:500px;
+    margin:auto;
+    padding:20px;
 }
-
-h1 {
-    font-size: 26px;
+input,button{
+    width:100%;
+    padding:14px;
+    margin-top:12px;
+    border-radius:10px;
+    border:none;
 }
-
-input {
-    width: 90%;
-    padding: 12px;
-    border-radius: 10px;
-    border: none;
-    margin-top: 15px;
-    font-size: 16px;
+button{
+    background:#22c55e;
+    color:white;
 }
-
-button {
-    padding: 12px 20px;
-    margin: 10px;
-    border: none;
-    border-radius: 10px;
-    background: #ff4757;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-button:hover {
-    background: #ff6b81;
-}
-
-/* Ad sections */
-.ad-top, .ad-bottom {
-    margin: 15px 0;
-    background: #2a2a3d;
-    padding: 10px;
-    border-radius: 10px;
+audio{
+    width:100%;
+    margin-top:15px;
 }
 </style>
 </head>
@@ -68,152 +40,138 @@ button:hover {
 
 <div class="container">
 
-    <h1>🔥 Name Ringtone Generator</h1>
+<h2>🔥 Name Ringtone Generator</h2>
 
-    <!-- TOP AD -->
-    <div class="ad-top">
-        <!-- Google AdSense Code -->
-        YOUR_AD_CODE_HERE
-    </div>
+<input type="text" id="name" placeholder="Enter Name">
 
-    <input type="text" id="name" placeholder="Enter your name">
+<button onclick="generate()">Generate</button>
+<button onclick="download()">Download</button>
 
-    <br>
-
-    <button onclick="generate()">🎧 Generate</button>
-    <button onclick="download()">⬇ Download</button>
-
-    <audio id="voiceAudio"></audio>
-    <audio id="musicAudio" src="https://files.catbox.moe/66alqw.mp3" loop></audio>
-
-    <!-- BOTTOM AD -->
-    <div class="ad-bottom">
-        YOUR_AD_CODE_HERE
-    </div>
+<audio id="player" controls></audio>
 
 </div>
 
 <script>
 
-let voiceURL = "";
+let finalBlob = null;
 
-function generate() {
-    let name = document.getElementById("name").value.trim();
+async function generate(){
 
-    if (!name) {
-        alert("Enter name first!");
-        return;
-    }
+    const name = document.getElementById("name").value.trim();
+    if(!name) return alert("Enter name");
 
-    let text = name + " someone is calling you please pickup the phone";
+    const text = `${name}, someone is calling you, please pick up the phone`;
 
-    voiceURL = `https://api.voicerss.org/?key=ec7c59370d864b21ad1d0c68f7e2b58c&hl=en-in&src=${encodeURIComponent(text)}`;
+    // 🔥 GOOGLE TTS API
+    const apiKey = "AIzaSyC0rUAmVcsyLCvEdCGHJQ733gs5uhRjPZM";
 
-    let voice = document.getElementById("voiceAudio");
-    let music = document.getElementById("musicAudio");
+    const res = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+            input:{text:text},
+            voice:{languageCode:"en-IN", name:"en-IN-Wavenet-B"},
+            audioConfig:{audioEncoding:"MP3"}
+        })
+    });
 
-    voice.src = voiceURL;
+    const data = await res.json();
 
-    // Play both together
-    voice.play();
-    music.currentTime = 0;
-    music.volume = 0.3;
-    music.play();
+    const voiceBase64 = data.audioContent;
+    const voiceBlob = base64ToBlob(voiceBase64, "audio/mp3");
+
+    // 🎵 LOAD MUSIC
+    const music = await fetch("https://files.catbox.moe/66alqw.mp3");
+    const musicBlob = await music.blob();
+
+    // 🎧 MERGE USING AUDIO CONTEXT
+    const audioContext = new AudioContext();
+
+    const voiceBuffer = await audioContext.decodeAudioData(await voiceBlob.arrayBuffer());
+    const musicBuffer = await audioContext.decodeAudioData(await musicBlob.arrayBuffer());
+
+    const duration = Math.max(voiceBuffer.duration, musicBuffer.duration);
+
+    const offline = new OfflineAudioContext(1, 44100 * duration, 44100);
+
+    const voiceSource = offline.createBufferSource();
+    voiceSource.buffer = voiceBuffer;
+
+    const musicSource = offline.createBufferSource();
+    musicSource.buffer = musicBuffer;
+
+    const musicGain = offline.createGain();
+    musicGain.gain.value = 0.3;
+
+    voiceSource.connect(offline.destination);
+    musicSource.connect(musicGain).connect(offline.destination);
+
+    voiceSource.start(0);
+    musicSource.start(0);
+
+    const rendered = await offline.startRendering();
+
+    const wavBlob = bufferToWav(rendered);
+
+    finalBlob = wavBlob;
+
+    const url = URL.createObjectURL(wavBlob);
+    document.getElementById("player").src = url;
 }
 
-async function download() {
-    if (!voiceURL) {
-        alert("Generate ringtone first!");
-        return;
-    }
-
-    const ctx = new AudioContext();
-
-    const voiceBuffer = await fetch(voiceURL)
-        .then(r => r.arrayBuffer())
-        .then(data => ctx.decodeAudioData(data));
-
-    const musicBuffer = await fetch("https://files.catbox.moe/66alqw.mp3")
-        .then(r => r.arrayBuffer())
-        .then(data => ctx.decodeAudioData(data));
-
-    const length = Math.max(voiceBuffer.length, musicBuffer.length);
-
-    const output = ctx.createBuffer(2, length, ctx.sampleRate);
-
-    for (let channel = 0; channel < 2; channel++) {
-        let outputData = output.getChannelData(channel);
-        let voiceData = voiceBuffer.getChannelData(channel % voiceBuffer.numberOfChannels);
-        let musicData = musicBuffer.getChannelData(channel % musicBuffer.numberOfChannels);
-
-        for (let i = 0; i < length; i++) {
-            let v = voiceData[i] || 0;
-            let m = musicData[i] || 0;
-
-            outputData[i] = v + (m * 0.3);
-        }
-    }
-
-    const wav = bufferToWave(output, output.length);
-    const blob = new Blob([wav], { type: 'audio/wav' });
-
+function download(){
+    if(!finalBlob) return alert("Generate first");
     const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
+    a.href = URL.createObjectURL(finalBlob);
     a.download = "ringtone.wav";
     a.click();
 }
 
-// Convert buffer to WAV
-function bufferToWave(abuffer, len) {
-    let numOfChan = abuffer.numberOfChannels,
-        length = len * numOfChan * 2 + 44,
-        buffer = new ArrayBuffer(length),
-        view = new DataView(buffer),
-        channels = [],
-        i, sample,
-        offset = 0,
-        pos = 0;
+// 🔧 HELPERS
+function base64ToBlob(base64, type){
+    const byteChars = atob(base64);
+    const byteNumbers = new Array(byteChars.length);
+    for(let i=0;i<byteChars.length;i++){
+        byteNumbers[i] = byteChars.charCodeAt(i);
+    }
+    return new Blob([new Uint8Array(byteNumbers)], {type:type});
+}
 
-    setUint32(0x46464952);
-    setUint32(length - 8);
-    setUint32(0x45564157);
+function bufferToWav(buffer){
+    const numOfChan = buffer.numberOfChannels,
+    length = buffer.length * numOfChan * 2 + 44,
+    bufferArray = new ArrayBuffer(length),
+    view = new DataView(bufferArray);
 
-    setUint32(0x20746d66);
-    setUint32(16);
-    setUint16(1);
-    setUint16(numOfChan);
-    setUint32(abuffer.sampleRate);
-    setUint32(abuffer.sampleRate * 2 * numOfChan);
-    setUint16(numOfChan * 2);
-    setUint16(16);
+    let offset = 0;
 
-    setUint32(0x61746164);
-    setUint32(length - pos - 4);
-
-    for (i = 0; i < abuffer.numberOfChannels; i++)
-        channels.push(abuffer.getChannelData(i));
-
-    while (pos < length) {
-        for (i = 0; i < numOfChan; i++) {
-            sample = Math.max(-1, Math.min(1, channels[i][offset]));
-            sample = (sample * 32767) | 0;
-            view.setInt16(pos, sample, true);
-            pos += 2;
+    function writeString(str){
+        for (let i = 0; i < str.length; i++){
+            view.setUint8(offset++, str.charCodeAt(i));
         }
-        offset++;
     }
 
-    return buffer;
+    writeString("RIFF");
+    view.setUint32(offset, 36 + buffer.length * 2, true); offset += 4;
+    writeString("WAVE");
+    writeString("fmt ");
+    view.setUint32(offset, 16, true); offset += 4;
+    view.setUint16(offset, 1, true); offset += 2;
+    view.setUint16(offset, numOfChan, true); offset += 2;
+    view.setUint32(offset, buffer.sampleRate, true); offset += 4;
+    view.setUint32(offset, buffer.sampleRate * 2, true); offset += 4;
+    view.setUint16(offset, numOfChan * 2, true); offset += 2;
+    view.setUint16(offset, 16, true); offset += 2;
+    writeString("data");
+    view.setUint32(offset, buffer.length * 2, true); offset += 4;
 
-    function setUint16(data) {
-        view.setUint16(pos, data, true);
-        pos += 2;
+    const channelData = buffer.getChannelData(0);
+    for (let i = 0; i < channelData.length; i++, offset += 2){
+        const s = Math.max(-1, Math.min(1, channelData[i]));
+        view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
     }
 
-    function setUint32(data) {
-        view.setUint32(pos, data, true);
-        pos += 4;
-    }
+    return new Blob([view], { type: "audio/wav" });
 }
 
 </script>
