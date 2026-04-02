@@ -3,67 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Name Ringtone Generator | Pro Tool</title>
+    <title>Name Ringtone Generator - Fixed Version</title>
     <style>
-        :root {
-            --primary: #6366f1;
-            --secondary: #a855f7;
-            --dark: #1e1b4b;
-            --light: #f8fafc;
-            --success: #22c55e;
-        }
-
+        :root { --primary: #6366f1; --secondary: #a855f7; --dark: #1e1b4b; --success: #22c55e; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-
-        body {
-            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 500px;
-            background: white;
-            padding: 2rem;
-            border-radius: 24px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
-            text-align: center;
-        }
-
-        h1 { margin-bottom: 1rem; color: var(--dark); }
-        
-        input[type="text"] {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
-            font-size: 1rem;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-            margin-bottom: 10px;
-        }
-
+        body { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .container { width: 100%; max-width: 500px; background: white; padding: 2rem; border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); text-align: center; }
+        h1 { margin-bottom: 1rem; color: var(--dark); font-size: 1.5rem; }
+        input[type="text"] { width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 12px; margin-bottom: 1.5rem; font-size: 1rem; outline: none; }
+        input:focus { border-color: var(--primary); }
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-generate { background: var(--primary); color: white; }
-        .btn-generate:disabled { background: #ccc; }
-        
-        .result-area { display: none; margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px; }
-        
+        .btn-generate:disabled { background: #94a3b8; cursor: not-allowed; }
+        .result-area { display: none; margin-top: 20px; border-top: 2px solid #f1f5f9; padding-top: 20px; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .ad-slot { background: #f8fafc; border: 1px dashed #cbd5e1; margin: 15px 0; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 12px; }
-        .ad-top { height: 90px; width: 100%; }
-        .ad-sticky { position: fixed; bottom: 0; width: 100%; height: 50px; background: #fff; border-top: 1px solid #ddd; }
+        .ad-top { height: 90px; width: 100%; max-width: 728px; }
     </style>
 </head>
 <body>
@@ -71,107 +26,142 @@
     <div class="ad-slot ad-top">ADVERTISEMENT - TOP BANNER</div>
 
     <div class="container">
-        <h1>Ringtone Maker</h1>
-        <input type="text" id="userName" placeholder="Enter your name..." maxlength="25">
+        <h1>Name Ringtone Maker</h1>
+        <p style="color: #64748b; margin-bottom: 20px; font-size: 0.9rem;">Voice + Music Merged Ringtone</p>
+        
+        <input type="text" id="userName" placeholder="Apna Naam Likhein..." maxlength="25">
         
         <button id="generateBtn" class="btn btn-generate">Generate Ringtone</button>
 
         <div id="resultArea" class="result-area">
-            <p id="statusMsg" style="margin-bottom: 15px; font-weight: bold; color: var(--primary);"></p>
-            <button id="playBtn" class="btn" style="background: var(--dark); color: white;">▶ Play</button>
-            <button id="downloadBtn" class="btn" style="background: var(--success); color: white;">↓ Download Ringtone</button>
+            <p style="margin-bottom: 15px; font-weight: bold; color: var(--success);">✨ Ringtone taiyar hai!</p>
+            <button id="playBtn" class="btn" style="background: var(--dark); color: white;">▶ Play Ringtone</button>
+            <button id="downloadBtn" class="btn" style="background: var(--success); color: white;">↓ Download MP3/WAV</button>
         </div>
     </div>
-
-    <div class="ad-sticky">ADVERTISEMENT - STICKY FOOTER</div>
 
     <script>
         const generateBtn = document.getElementById('generateBtn');
         const resultArea = document.getElementById('resultArea');
-        const statusMsg = document.getElementById('statusMsg');
-        const userName = document.getElementById('userName');
+        const userNameInput = document.getElementById('userName');
         
-        let finalBlob = null;
+        let finalAudioBlob = null;
         const BG_URL = 'https://files.catbox.moe/66alqw.mp3';
 
         generateBtn.onclick = async () => {
-            const name = userName.value.trim();
+            const name = userNameInput.value.trim();
             if (!name) return alert("Please enter a name");
 
             generateBtn.disabled = true;
-            generateBtn.innerText = "Processing Audio...";
-            
+            generateBtn.innerText = "Merging Audio... Please Wait";
+            resultArea.style.display = 'none';
+
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 
-                // 1. Load Background Music
-                const bgBuffer = await fetch(BG_URL).then(r => r.arrayBuffer()).then(data => audioCtx.decodeAudioData(data));
+                // 1. Load Music
+                const bgResponse = await fetch(BG_URL);
+                const bgArrayBuffer = await bgResponse.arrayBuffer();
+                const bgAudioBuffer = await audioCtx.decodeAudioData(bgArrayBuffer);
 
-                // 2. Setup Speech
-                const msg = new SpeechSynthesisUtterance(`${name}, someone is calling you please pick up the phone`);
-                const voices = window.speechSynthesis.getVoices();
-                msg.voice = voices.find(v => v.lang.includes('en-IN')) || voices[0];
-                msg.rate = 0.9;
-
-                // 3. Create a Destination for recording
-                const dest = audioCtx.createMediaStreamDestination();
-                const recorder = new MediaRecorder(dest.stream);
-                const chunks = [];
-
-                recorder.ondataavailable = e => chunks.push(e.data);
-                recorder.onstop = () => {
-                    finalBlob = new Blob(chunks, { type: 'audio/mp3' });
-                    statusMsg.innerText = "Ringtone Ready!";
-                    resultArea.style.display = 'block';
-                    generateBtn.disabled = false;
-                    generateBtn.innerText = "Generate Ringtone";
-                };
-
-                // 4. Connect background music and start recording
-                const bgSource = audioCtx.createBufferSource();
-                bgSource.buffer = bgBuffer;
-                const gain = audioCtx.createGain();
-                gain.gain.value = 0.3; // Background volume lower
+                // 2. Fetch Voice from Google TTS (Proxy se fix kiya taaki record ho sake)
+                const ttsText = encodeURIComponent(`${name}, someone is calling you please pick up the phone`);
+                const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${ttsText}&tl=en-in&client=tw-ob`;
                 
-                bgSource.connect(gain);
-                gain.connect(dest);
-                gain.connect(audioCtx.destination); // So user hears it too
+                const voiceResponse = await fetch(ttsUrl);
+                const voiceArrayBuffer = await voiceResponse.arrayBuffer();
+                const voiceAudioBuffer = await audioCtx.decodeAudioData(voiceArrayBuffer);
 
-                recorder.start();
+                // 3. Create Offline Context for Merging (Offline recording)
+                const duration = Math.max(bgAudioBuffer.duration, voiceAudioBuffer.duration + 1);
+                const offlineCtx = new OfflineAudioContext(2, 44100 * duration, 44100);
+
+                // Background Source
+                const bgSource = offlineCtx.createBufferSource();
+                bgSource.buffer = bgAudioBuffer;
+                const bgGain = offlineCtx.createGain();
+                bgGain.gain.value = 0.4; // Music volume slow
+                bgSource.connect(bgGain);
+                bgGain.connect(offlineCtx.destination);
+
+                // Voice Source
+                const voiceSource = offlineCtx.createBufferSource();
+                voiceSource.buffer = voiceAudioBuffer;
+                const voiceGain = offlineCtx.createGain();
+                voiceGain.gain.value = 1.2; // Voice volume loud
+                voiceSource.connect(voiceGain);
+                voiceGain.connect(offlineCtx.destination);
+
+                // Start both
                 bgSource.start(0);
-                window.speechSynthesis.speak(msg);
+                voiceSource.start(0.5); // Voice 0.5 second baad start hogi
 
-                // Stop recording when speech ends
-                msg.onend = () => {
-                    setTimeout(() => {
-                        bgSource.stop();
-                        recorder.stop();
-                    }, 1000); // 1 sec padding
-                };
+                // 4. Render the Mix
+                const renderedBuffer = await offlineCtx.startRendering();
+                
+                // Convert to Blob
+                finalAudioBlob = bufferToWave(renderedBuffer, renderedBuffer.length);
+                
+                resultArea.style.display = 'block';
+                generateBtn.disabled = false;
+                generateBtn.innerText = "Generate Ringtone";
 
             } catch (err) {
                 console.error(err);
-                alert("Generation failed. Please use Chrome on Desktop or Android.");
+                alert("Error: Internet connection check karein ya chrome use karein.");
                 generateBtn.disabled = false;
                 generateBtn.innerText = "Generate Ringtone";
             }
         };
 
+        // Play Button
         document.getElementById('playBtn').onclick = () => {
-            if (finalBlob) new Audio(URL.createObjectURL(finalBlob)).play();
-        };
-
-        document.getElementById('downloadBtn').onclick = () => {
-            if (finalBlob) {
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(finalBlob);
-                a.download = `${userName.value}_Ringtone.mp3`;
-                a.click();
+            if (finalAudioBlob) {
+                const audio = new Audio(URL.createObjectURL(finalAudioBlob));
+                audio.play();
             }
         };
 
-        // Initialize voices
-        window.speechSynthesis.getVoices();
+        // Download Button
+        document.getElementById('downloadBtn').onclick = () => {
+            if (finalAudioBlob) {
+                const url = URL.createObjectURL(finalAudioBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${userNameInput.value}_Ringtone.wav`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+        };
+
+        // Helper: Convert AudioBuffer to WAV format (Standard for merging)
+        function bufferToWave(abuffer, len) {
+            let numOfChan = abuffer.numberOfChannels,
+                length = len * numOfChan * 2 + 44,
+                buffer = new ArrayBuffer(length),
+                view = new DataView(buffer),
+                channels = [], i, sample, offset = 0, pos = 0;
+
+            function setUint32(data) { view.setUint32(pos, data, true); pos += 4; }
+            function setUint16(data) { view.setUint16(pos, data, true); pos += 2; }
+
+            setUint32(0x46464952); setUint32(length - 8); setUint32(0x45564157);
+            setUint32(0x20746d66); setUint32(16); setUint16(1); setUint16(numOfChan);
+            setUint32(abuffer.sampleRate); setUint32(abuffer.sampleRate * 2 * numOfChan);
+            setUint16(numOfChan * 2); setUint16(16); setUint32(0x61746164); setUint32(length - pos - 4);
+
+            for (i = 0; i < numOfChan; i++) channels.push(abuffer.getChannelData(i));
+            while (pos < length) {
+                for (i = 0; i < numOfChan; i++) {
+                    sample = Math.max(-1, Math.min(1, channels[i][offset]));
+                    sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767) | 0;
+                    view.setInt16(pos, sample, true); pos += 2;
+                }
+                offset++;
+            }
+            return new Blob([buffer], { type: "audio/wav" });
+        }
     </script>
 </body>
 </html>
