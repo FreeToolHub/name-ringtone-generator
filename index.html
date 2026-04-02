@@ -1,49 +1,42 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Name Ringtone Generator | Working Version</title>
+    <title>Name Ringtone Generator | Final Fix</title>
     <style>
         :root { --primary: #6366f1; --secondary: #a855f7; --dark: #1e1b4b; --success: #22c55e; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
         .container { width: 100%; max-width: 500px; background: white; padding: 2rem; border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); text-align: center; margin-top: 20px; }
         h1 { margin-bottom: 10px; color: var(--dark); font-size: 1.6rem; }
-        .subtitle { color: #64748b; margin-bottom: 25px; font-size: 0.9rem; }
-        input[type="text"] { width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 12px; margin-bottom: 20px; font-size: 1rem; outline: none; transition: 0.3s; }
-        input:focus { border-color: var(--primary); }
+        input[type="text"] { width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 12px; margin-bottom: 20px; font-size: 1rem; outline: none; }
         .btn { width: 100%; padding: 16px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-bottom: 12px; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-generate { background: var(--primary); color: white; }
         .btn-generate:disabled { background: #cbd5e1; cursor: not-allowed; }
         .result-area { display: none; margin-top: 25px; border-top: 2px solid #f1f5f9; padding-top: 25px; animation: fadeIn 0.5s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .ad-slot { background: #f8fafc; border: 1px dashed #cbd5e1; margin: 10px 0; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 12px; border-radius: 8px; }
-        .ad-top { height: 90px; width: 100%; max-width: 728px; }
     </style>
 </head>
 <body>
 
-    <!-- Ad Slot Top -->
-    <div class="ad-slot ad-top">ADVERTISEMENT - TOP BANNER</div>
+    <div class="ad-slot" style="height:90px; width:100%; max-width:728px;">ADVERTISEMENT - TOP</div>
 
     <div class="container">
         <h1>Name Ringtone Maker</h1>
-        <p class="subtitle">Create & Download Personal Ringtones</p>
+        <p style="color: #64748b; margin-bottom: 20px;">Voice + Music Merged Perfectly</p>
         
-        <input type="text" id="userName" placeholder="Type your name here..." maxlength="30">
+        <input type="text" id="userName" placeholder="Enter your name..." maxlength="30">
         
         <button id="generateBtn" class="btn btn-generate">
-            <span id="btnText">Create Ringtone</span>
+            <span id="btnText">Generate Ringtone</span>
         </button>
 
-        <!-- Ad Slot Middle -->
-        <div class="ad-slot" style="height: 100px;">ADVERTISEMENT - CONTENT AD</div>
-
         <div id="resultArea" class="result-area">
-            <p style="margin-bottom: 15px; font-weight: bold; color: var(--success);">🎉 Your ringtone is ready!</p>
-            <button id="playBtn" class="btn" style="background: var(--dark); color: white;">▶ Play Now</button>
-            <button id="downloadBtn" class="btn" style="background: var(--success); color: white;">↓ Download (WAV)</button>
+            <p style="margin-bottom: 15px; font-weight: bold; color: var(--success);">✅ Ringtone Generated!</p>
+            <button id="playBtn" class="btn" style="background: var(--dark); color: white;">▶ Play Combined Audio</button>
+            <button id="downloadBtn" class="btn" style="background: var(--success); color: white;">↓ Download Ringtone</button>
         </div>
     </div>
 
@@ -58,93 +51,110 @@
 
         generateBtn.onclick = async () => {
             const name = userNameInput.value.trim();
-            if (!name) return alert("Please enter your name!");
+            if (!name) return alert("Please enter a name!");
 
-            // UI Reset
             generateBtn.disabled = true;
-            btnText.innerText = "Processing... (Speak permission may be needed)";
+            btnText.innerText = "Merging Voice & Music...";
             resultArea.style.display = 'none';
 
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 
-                // 1. Fetch Music Buffer
-                const response = await fetch(BG_URL);
-                const arrayBuffer = await response.arrayBuffer();
-                const bgBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+                // 1. Fetch Background Music
+                const bgRes = await fetch(BG_URL);
+                const bgData = await bgRes.arrayBuffer();
+                const bgBuffer = await audioCtx.decodeAudioData(bgData);
 
-                // 2. Setup Recording Destination
-                const dest = audioCtx.createMediaStreamDestination();
-                const recorder = new MediaRecorder(dest.stream);
-                const chunks = [];
-
-                recorder.ondataavailable = e => chunks.push(e.data);
-                recorder.onstop = () => {
-                    finalBlob = new Blob(chunks, { type: 'audio/wav' });
-                    btnText.innerText = "Create Ringtone";
-                    generateBtn.disabled = false;
-                    resultArea.style.display = 'block';
-                };
-
-                // 3. Prepare Background Music Source
-                const bgSource = audioCtx.createBufferSource();
-                bgSource.buffer = bgBuffer;
-                const bgGain = audioCtx.createGain();
-                bgGain.gain.value = 0.3; // Music volume low
-                bgSource.connect(bgGain);
-                bgGain.connect(dest);
-                bgGain.connect(audioCtx.destination); // Play while recording so it's captured
-
-                // 4. Prepare Speech
-                const speechText = `${name}, someone is calling you please pick up the phone`;
-                const utterance = new SpeechSynthesisUtterance(speechText);
+                // 2. Fetch Voice (Using a reliable proxy to avoid CORS and ensure it's a buffer)
+                const text = encodeURIComponent(`${name}, someone is calling you please pick up the phone`);
+                const voiceUrl = `https://api.voicerss.org/?key=835338600d7d49868770c06636737291&hl=en-in&v=Ajit&src=${text}`;
                 
-                // Indian English Voice Set Karein
-                const voices = window.speechSynthesis.getVoices();
-                utterance.voice = voices.find(v => v.lang.includes('en-IN')) || voices[0];
-                utterance.rate = 0.85;
+                const voiceRes = await fetch(voiceUrl);
+                const voiceData = await voiceRes.arrayBuffer();
+                const voiceBuffer = await audioCtx.decodeAudioData(voiceData);
 
-                // 5. Start Recording & Audio
-                recorder.start();
+                // 3. Setup Offline Context for Rendering (The real Merge)
+                const duration = Math.max(bgBuffer.duration, voiceBuffer.duration + 2);
+                const offlineCtx = new OfflineAudioContext(2, 44100 * duration, 44100);
+
+                // Background Source
+                const bgSource = offlineCtx.createBufferSource();
+                bgSource.buffer = bgBuffer;
+                const bgGain = offlineCtx.createGain();
+                bgGain.gain.value = 0.35; // Lower music
+                bgSource.connect(bgGain);
+                bgGain.connect(offlineCtx.destination);
+
+                // Voice Source
+                const voiceSource = offlineCtx.createBufferSource();
+                voiceSource.buffer = voiceBuffer;
+                const voiceGain = offlineCtx.createGain();
+                voiceGain.gain.value = 1.0; // Full voice
+                voiceSource.connect(voiceGain);
+                voiceGain.connect(offlineCtx.destination);
+
+                // Start
                 bgSource.start(0);
-                window.speechSynthesis.speak(utterance);
+                voiceSource.start(0.5); // Voice starts after 0.5s
 
-                utterance.onend = () => {
-                    // Speech khatam hone ke 1 sec baad music stop karein
-                    setTimeout(() => {
-                        bgSource.stop();
-                        recorder.stop();
-                        audioCtx.close();
-                    }, 1000);
-                };
+                // 4. Render and Create Blob
+                const renderedBuffer = await offlineCtx.startRendering();
+                finalBlob = bufferToWave(renderedBuffer, renderedBuffer.length);
+
+                btnText.innerText = "Generate Ringtone";
+                generateBtn.disabled = false;
+                resultArea.style.display = 'block';
 
             } catch (err) {
                 console.error(err);
-                alert("Something went wrong. Please use Google Chrome.");
+                alert("Error: Please check internet or try another name.");
                 generateBtn.disabled = false;
-                btnText.innerText = "Create Ringtone";
+                btnText.innerText = "Generate Ringtone";
             }
         };
 
+        // Play combined
         document.getElementById('playBtn').onclick = () => {
-            if (finalBlob) {
-                const audio = new Audio(URL.createObjectURL(finalBlob));
-                audio.play();
-            }
+            if (finalBlob) new Audio(URL.createObjectURL(finalBlob)).play();
         };
 
+        // Download combined
         document.getElementById('downloadBtn').onclick = () => {
             if (finalBlob) {
-                const url = URL.createObjectURL(finalBlob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `${userNameInput.value}_Ringtone.wav`;
-                a.click();
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(finalBlob);
+                link.download = `${userNameInput.value}_Ringtone.wav`;
+                link.click();
             }
         };
 
-        // Pre-load voices
-        window.speechSynthesis.getVoices();
+        // WAV Helper
+        function bufferToWave(abuffer, len) {
+            let numOfChan = abuffer.numberOfChannels,
+                length = len * numOfChan * 2 + 44,
+                buffer = new ArrayBuffer(length),
+                view = new DataView(buffer),
+                channels = [], i, sample, offset = 0, pos = 0;
+
+            function setUint32(data) { view.setUint32(pos, data, true); pos += 4; }
+            function setUint16(data) { view.setUint16(pos, data, true); pos += 2; }
+
+            setUint32(0x46464952); setUint32(length - 8); setUint32(0x45564157);
+            setUint32(0x20746d66); setUint32(16); setUint16(1); setUint16(numOfChan);
+            setUint32(abuffer.sampleRate); setUint32(abuffer.sampleRate * 2 * numOfChan);
+            setUint16(numOfChan * 2); setUint16(16); setUint32(0x61746164); setUint32(length - pos - 4);
+
+            for (i = 0; i < numOfChan; i++) channels.push(abuffer.getChannelData(i));
+            while (pos < length) {
+                for (i = 0; i < numOfChan; i++) {
+                    sample = Math.max(-1, Math.min(1, channels[i][offset]));
+                    sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767) | 0;
+                    view.setInt16(pos, sample, true); pos += 2;
+                }
+                offset++;
+            }
+            return new Blob([buffer], { type: "audio/wav" });
+        }
     </script>
 </body>
 </html>
